@@ -1,0 +1,21 @@
+spring:
+  jpa:
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+
+security:
+  jwt:
+    secret-key: security-1234567890-!@#$%^&*()-security-1234567890
+    expirationTime: 86400000 # 1 day
+  cookie:
+    token:
+      key: access_token
+      http-only: true
+      secure: true
+      domain: localhost
+      path: /
+      max-age: 86400 # 1 day
