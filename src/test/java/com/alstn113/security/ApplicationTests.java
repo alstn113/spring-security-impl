@@ -40,7 +40,7 @@ class ApplicationTests {
     }
 
     @Test
-    @DisplayName("'/public'은 접근 가능하다.")
+    @DisplayName("'/public'은 securityFilterChain의 대상 경로가 아니므로 접근 가능하다.")
     void testPublicEndpoint() {
         given().log().all()
                 .get("/public")
@@ -50,8 +50,18 @@ class ApplicationTests {
     }
 
     @Test
-    @DisplayName("'/api/posts' 요청은 인증된 사용자는 접근 가능하다.")
+    @DisplayName("'/api/posts'의 GET 요청은 인증 없이 접근 가능하다.")
     void testGetPosts() {
+        given().log().all()
+                .get("/api/posts")
+                .then().log().all()
+                .statusCode(200)
+                .body(equalTo("인증되지 않은 사용자: 게시물 조회"));
+    }
+
+    @Test
+    @DisplayName("'/api/posts'의 GET 요청은 인증된 사용자도 접근 가능하다.")
+    void testGetPostsWithAuthentication() {
         Cookie cookie = getMemberAccessTokenCookie();
 
         given().log().all()
@@ -63,25 +73,73 @@ class ApplicationTests {
     }
 
     @Test
-    @DisplayName("'/api/posts' 인증이 필요한 요청에서 토큰이 유효하지 않은 경우, 401을 반환한다.")
-    void testGetPostsWithInvalidToken() {
+    @DisplayName("'/api/posts'의 POST 요청은 인증되지 않은 사용자의 경우 401을 반환한다.")
+    void testPostPostsWithoutAuthentication() {
         given().log().all()
-                .get("/api/posts")
+                .post("/api/posts")
                 .then().log().all()
                 .statusCode(401);
     }
 
     @Test
-    @DisplayName("'/api/posts' 인증이 필요한 요청에서 쿠키가 없는 경우(인증이 없는 경우), 401을 반환한다.")
-    void testGetPostsWithoutCookie() {
+    @DisplayName("'/api/posts'의 POST 요청은 인증된 사용자만 접근 가능하다.")
+    void testPostPosts() {
+        Cookie cookie = getMemberAccessTokenCookie();
+
         given().log().all()
-                .get("/api/posts")
+                .cookie(cookie)
+                .post("/api/posts")
+                .then().log().all()
+                .statusCode(200)
+                .body(equalTo("인증된 사용자: 게시물 생성 #1"));
+    }
+
+    @Test
+    @DisplayName("'/api/member', 인증이 필요한 요청에서 토큰이 유효하지 않은 경우, 401을 반환한다.")
+    void testPrivateMemberHolderWithInvalidToken() {
+        given().log().all()
+                .cookie("access_token", "invalid_token")
+                .get("/api/private/member")
                 .then().log().all()
                 .statusCode(401);
     }
 
     @Test
-    @DisplayName("'/api/private/admin' 요청은 ADMIN 권한이 있는 사용자만 접근 가능하다.")
+    @DisplayName("'/api/member', 인증이 필요한 요청에서 쿠키가 없는 경우(인증이 없는 경우), 401을 반환한다.")
+    void testPrivateMemberHolderWithoutAuthentication() {
+        given().log().all()
+                .get("/api/private/member")
+                .then().log().all()
+                .statusCode(401);
+    }
+
+    @Test
+    @DisplayName("'/api/private/member'는 MEMBER의 경우 접근 가능하다.")
+    void testPrivateMember() {
+        Cookie cookie = getMemberAccessTokenCookie();
+
+        given().log().all()
+                .cookie(cookie)
+                .get("/api/private/member")
+                .then().log().all()
+                .statusCode(200)
+                .body(equalTo("인증된 사용자 #1"));
+    }
+
+    @Test
+    @DisplayName("'/api/private/member'는 MEMBER가 아닌 경우, 403을 반환한다.")
+    void testPrivateMemberNotAuthorized() {
+        Cookie cookie = getAdminAccessTokenCookie();
+
+        given().log().all()
+                .cookie(cookie)
+                .get("/api/private/member")
+                .then().log().all()
+                .statusCode(403);
+    }
+
+    @Test
+    @DisplayName("'/api/private/admin'는 ADMIN의 경우 접근 가능하다.")
     void testPrivateAdmin() {
         Cookie cookie = getAdminAccessTokenCookie();
 
@@ -90,19 +148,7 @@ class ApplicationTests {
                 .get("/api/private/admin")
                 .then().log().all()
                 .statusCode(200)
-                .body(equalTo("인증된 관리자: 게시물 조회 #2"));
-    }
-
-    @Test
-    @DisplayName("'/api/private/admin' 요청은 ADMIN 권한이 없는 사용자는 403을 반환한다.")
-    void testPrivateAdminWithoutAuthorization() {
-        Cookie cookie = getMemberAccessTokenCookie();
-
-        given().log().all()
-                .cookie(cookie)
-                .get("/api/private/admin")
-                .then().log().all()
-                .statusCode(403);
+                .body(equalTo("인증된 관리자 #2"));
     }
 
     private Cookie getMemberAccessTokenCookie() {

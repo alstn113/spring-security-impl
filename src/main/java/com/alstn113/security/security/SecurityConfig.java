@@ -1,30 +1,22 @@
 package com.alstn113.security.security;
 
-import static com.alstn113.security.security.authorization.AuthorityAuthorizationManager.hasAuthority;
-
 import com.alstn113.security.app.application.AuthService;
 import com.alstn113.security.app.application.TokenProvider;
 import com.alstn113.security.security.authentication.JwtAuthenticationFilter;
 import com.alstn113.security.security.authentication.TokenResolver;
-import com.alstn113.security.security.authorization.AuthorizationDecision;
-import com.alstn113.security.security.authorization.AuthorizationFilter;
-import com.alstn113.security.security.authorization.AuthorizationManager;
-import com.alstn113.security.security.authorization.RequestMatcherDelegatingAuthorizationManager;
-import com.alstn113.security.security.context.SecurityContextHolderFilter;
+import com.alstn113.security.security.dsl.HttpSecurity;
 import com.alstn113.security.security.exception.AccessDeniedHandler;
 import com.alstn113.security.security.exception.AuthenticationEntryPoint;
-import com.alstn113.security.security.exception.ExceptionTranslationFilter;
 import com.alstn113.security.security.filter.FilterChainProxy;
 import com.alstn113.security.security.filter.SecurityFilterChain;
-import com.alstn113.security.security.util.RequestMatcher;
 import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Filter;
 import java.util.EnumSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
 @Configuration
 @RequiredArgsConstructor
@@ -39,22 +31,27 @@ public class SecurityConfig {
     private final AccessDeniedHandler accessDeniedHandler;
 
     @Bean
-    public SecurityFilterChain securityFilterChain() {
-        AuthorizationManager authenticated =
-                (authentication, request) -> new AuthorizationDecision(authentication.get() != null);
-
-        RequestMatcherDelegatingAuthorizationManager authorizationManager = new RequestMatcherDelegatingAuthorizationManager()
-                .add(new RequestMatcher(null, "/api/private/admin/**"), hasAuthority("ADMIN"))
-                .add(new RequestMatcher(null, "/api/**"), authenticated);
-
-        List<Filter> filters = List.of(
-                new SecurityContextHolderFilter(),
-                new JwtAuthenticationFilter(tokenProvider, tokenResolver, authService, authenticationEntryPoint),
-                new ExceptionTranslationFilter(authenticationEntryPoint, accessDeniedHandler),
-                new AuthorizationFilter(authorizationManager)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
+                tokenProvider,
+                tokenResolver,
+                authService,
+                authenticationEntryPoint
         );
 
-        return new SecurityFilterChain(new RequestMatcher(null, "/api/**"), filters);
+        return http
+                .securityMatcher("/api/**")
+                .addFilterBefore(jwtAuthenticationFilter)
+                .exceptionHandling(it -> it
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
+                .authorizeHttpRequests(it -> it
+                        .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+                        .requestMatchers("/api/private/member/**").hasAuthority("MEMBER")
+                        .requestMatchers("/api/private/admin/**").hasAuthority("ADMIN")
+                        .anyRequest().authenticated())
+                .build();
     }
 
     @Bean(name = FILTER_CHAIN_PROXY_BEAN_NAME)
