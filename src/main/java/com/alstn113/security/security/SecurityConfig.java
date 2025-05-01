@@ -8,8 +8,10 @@ import com.alstn113.security.security.authorization.AuthorityAuthorizationManage
 import com.alstn113.security.security.authorization.AuthorizationDecision;
 import com.alstn113.security.security.authorization.AuthorizationFilter;
 import com.alstn113.security.security.authorization.AuthorizationManager;
+import com.alstn113.security.security.authorization.RequestMatcherDelegatingAuthorizationManager;
 import com.alstn113.security.security.exception.AccessDeniedHandler;
 import com.alstn113.security.security.exception.AuthenticationEntryPoint;
+import com.alstn113.security.security.util.RequestMatcher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -43,27 +45,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<AuthorizationFilter> authorityAuthorizationFilter() {
-        AuthorizationFilter authorizationFilter = new AuthorizationFilter(
-                AuthorityAuthorizationManager.hasAuthority("ADMIN"),
-                authenticationEntryPoint,
-                accessDeniedHandler
-        );
-
-        FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(authorizationFilter);
-        registrationBean.addUrlPatterns("/api/private/admin/*");
-        registrationBean.setOrder(2);
-
-        return registrationBean;
-    }
-
-    @Bean
-    public FilterRegistrationBean<AuthorizationFilter> authenticatedAuthorizationFilter() {
-        AuthorizationManager authenticatedAuthorizationManager =
+    public FilterRegistrationBean<AuthorizationFilter> authorizationFilter() {
+        AuthorizationManager authenticated =
                 (authentication, request) -> new AuthorizationDecision(authentication.get() != null);
+
+        RequestMatcherDelegatingAuthorizationManager authorizationManager = new RequestMatcherDelegatingAuthorizationManager()
+                .add(new RequestMatcher(null, "/api/private/admin/**"), AuthorityAuthorizationManager.hasAuthority("ADMIN"))
+                .add(new RequestMatcher(null, "/api/**"), authenticated);
         AuthorizationFilter authorizationFilter = new AuthorizationFilter(
-                authenticatedAuthorizationManager,
+                authorizationManager,
                 authenticationEntryPoint,
                 accessDeniedHandler
         );
@@ -71,8 +61,7 @@ public class SecurityConfig {
         FilterRegistrationBean<AuthorizationFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(authorizationFilter);
         registrationBean.addUrlPatterns("/api/*");
-        registrationBean.setOrder(3);
-
+        registrationBean.setOrder(2);
         return registrationBean;
     }
 }
