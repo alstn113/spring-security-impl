@@ -20,7 +20,15 @@
 | [step-8-lambda-dsl]                       | 람다 기반 DSL 구성           |
 | [step-9-handler-method-argument-resolver] | 컨트롤러에서 사용자 정보 받기       |
 
-<!-- 링크 모음 -->
+## 함께 보면 좋은 블로그 시리즈
+
+| 제목                                              |
+|-------------------------------------------------|
+| [Spring Security, 직접 만들면서 이해해보자! - 1편: 아키텍처 이해] |
+| 2편 인증, 인가, 예외 처리 - 작성 중                         |
+| 3편 FilterChainProxy와 Lambda DSL - 작성 중          | 
+
+<!-- 브랜치 링크 모음 -->
 
 [완성본]: https://github.com/alstn113/spring-security-impl/tree/main
 
@@ -41,3 +49,7 @@
 [step-8-lambda-dsl]: https://github.com/alstn113/spring-security-impl/tree/step-8-lambda-dsl
 
 [step-9-handler-method-argument-resolver]: https://github.com/alstn113/spring-security-impl/tree/step-9-handler-method-argument-resolver
+
+<!-- 블로그 링크 모음 -->
+
+[Spring Security, 직접 만들면서 이해해보자! - 1편: 아키텍처 이해]: https://alstn113.tistory.com/49
