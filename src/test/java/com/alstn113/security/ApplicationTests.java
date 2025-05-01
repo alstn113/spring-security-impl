@@ -139,6 +139,19 @@ class ApplicationTests {
     }
 
     @Test
+    @DisplayName("'/api/private/member/holder'는 MEMBER의 경우 접근 가능하다.")
+    void testPrivateMemberHolder() {
+        Cookie cookie = getMemberAccessTokenCookie();
+
+        given().log().all()
+                .cookie(cookie)
+                .get("/api/private/member/holder")
+                .then().log().all()
+                .statusCode(200)
+                .body(equalTo("인증된 사용자 #1"));
+    }
+
+    @Test
     @DisplayName("'/api/private/admin'는 ADMIN의 경우 접근 가능하다.")
     void testPrivateAdmin() {
         Cookie cookie = getAdminAccessTokenCookie();

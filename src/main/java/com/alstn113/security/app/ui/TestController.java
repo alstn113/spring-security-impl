@@ -1,5 +1,6 @@
 package com.alstn113.security.app.ui;
 
+import com.alstn113.security.security.annotation.AuthenticationPrincipal;
 import com.alstn113.security.security.authentication.JwtAuthentication;
 import com.alstn113.security.security.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,7 @@ public class TestController {
     }
 
     @GetMapping("/api/posts")
-    public String getPosts() {
-        JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+    public String getPosts(@AuthenticationPrincipal JwtAuthentication authentication) {
         if (authentication == null) {
             return "인증되지 않은 사용자: 게시물 조회";
         }
@@ -24,20 +24,23 @@ public class TestController {
     }
 
     @PostMapping("/api/posts")
-    public String createPost() {
-        JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+    public String createPost(@AuthenticationPrincipal JwtAuthentication authentication) {
         return "인증된 사용자: 게시물 생성 #" + authentication.principal();
     }
 
     @GetMapping("/api/private/member")
-    public String privateMember() {
+    public String privateMember(@AuthenticationPrincipal JwtAuthentication authentication) {
+        return "인증된 사용자 #" + authentication.principal();
+    }
+
+    @GetMapping("/api/private/member/holder")
+    public String privateMemberHolder() {
         JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
         return "인증된 사용자 #" + authentication.principal();
     }
 
     @GetMapping("/api/private/admin")
-    public String privateAdmin() {
-        JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+    public String privateAdmin(@AuthenticationPrincipal JwtAuthentication authentication) {
         return "인증된 관리자 #" + authentication.principal();
     }
 }
