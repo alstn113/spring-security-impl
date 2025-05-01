@@ -63,8 +63,17 @@ class ApplicationTests {
     }
 
     @Test
-    @DisplayName("'/api/posts' 요청은 인증되지 않은 사용자는 401을 반환한다.")
-    void testGetPostsWithoutAuthentication() {
+    @DisplayName("'/api/posts' 인증이 필요한 요청에서 토큰이 유효하지 않은 경우, 401을 반환한다.")
+    void testGetPostsWithInvalidToken() {
+        given().log().all()
+                .get("/api/posts")
+                .then().log().all()
+                .statusCode(401);
+    }
+
+    @Test
+    @DisplayName("'/api/posts' 인증이 필요한 요청에서 쿠키가 없는 경우(인증이 없는 경우), 401을 반환한다.")
+    void testGetPostsWithoutCookie() {
         given().log().all()
                 .get("/api/posts")
                 .then().log().all()

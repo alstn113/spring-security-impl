@@ -2,9 +2,6 @@ package com.alstn113.security.security.authorization;
 
 import com.alstn113.security.security.context.Authentication;
 import com.alstn113.security.security.context.SecurityContextHolder;
-import com.alstn113.security.security.exception.AccessDeniedHandler;
-import com.alstn113.security.security.exception.AuthenticationEntryPoint;
-import com.alstn113.security.security.exception.AuthenticationException;
 import com.alstn113.security.security.exception.AuthorizationDeniedException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,8 +17,6 @@ import org.springframework.web.filter.GenericFilterBean;
 public class AuthorizationFilter extends GenericFilterBean {
 
     private final AuthorizationManager authorizationManager;
-    private final AuthenticationEntryPoint authenticationEntryPoint;
-    private final AccessDeniedHandler accessDeniedHandler;
 
     @Override
     public void doFilter(
@@ -36,26 +31,9 @@ public class AuthorizationFilter extends GenericFilterBean {
         AuthorizationResult result = authorizationManager.authorize(() -> authentication, request);
 
         if (result != null && !result.isGranted()) {
-            handleAccessDeniedException(request, response, authentication);
-            return;
+            throw new AuthorizationDeniedException("접근을 위한 권한이 없습니다.");
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private void handleAccessDeniedException(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication
-    ) throws IOException, ServletException {
-        if (isAnonymous(authentication)) {
-            authenticationEntryPoint.commence(request, response, new AuthenticationException("인증되지 않은 사용자입니다."));
-            return;
-        }
-        accessDeniedHandler.handle(request, response, new AuthorizationDeniedException("접근을 위한 권한이 없습니다."));
-    }
-
-    private boolean isAnonymous(Authentication authentication) {
-        return authentication == null;
     }
 }
