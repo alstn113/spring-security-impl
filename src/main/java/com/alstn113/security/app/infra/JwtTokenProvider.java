@@ -1,6 +1,7 @@
 package com.alstn113.security.app.infra;
 
 import com.alstn113.security.app.application.TokenProvider;
+import com.alstn113.security.security.exception.AuthenticationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -43,7 +44,7 @@ public class JwtTokenProvider implements TokenProvider {
 
     private Claims toClaims(String token) {
         if (token == null || token.isBlank()) {
-            throw new IllegalArgumentException("토큰은 비어있을 수 없습니다.");
+            throw new AuthenticationException("토큰은 비어있을 수 없습니다.");
         }
 
         try {
@@ -51,9 +52,9 @@ public class JwtTokenProvider implements TokenProvider {
 
             return claimsJws.getPayload();
         } catch (ExpiredJwtException e) {
-            throw new IllegalArgumentException("만료된 토큰입니다.", e);
+            throw new AuthenticationException("만료된 토큰입니다.", e);
         } catch (JwtException e) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.", e);
+            throw new AuthenticationException("유효하지 않은 토큰입니다.", e);
         }
     }
 

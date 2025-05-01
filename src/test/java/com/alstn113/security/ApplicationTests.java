@@ -49,6 +49,28 @@ class ApplicationTests {
                 .body(equalTo("모두 접근 가능"));
     }
 
+    @Test
+    @DisplayName("'/api/posts' 요청은 인증된 사용자는 접근 가능하다.")
+    void testGetPosts() {
+        Cookie cookie = getMemberAccessTokenCookie();
+
+        given().log().all()
+                .cookie(cookie)
+                .get("/api/posts")
+                .then().log().all()
+                .statusCode(200)
+                .body(equalTo("인증된 사용자: 게시물 조회 #1"));
+    }
+
+    @Test
+    @DisplayName("'/api/posts' 요청은 인증되지 않은 사용자는 401을 반환한다.")
+    void testGetPostsWithoutAuthentication() {
+        given().log().all()
+                .get("/api/posts")
+                .then().log().all()
+                .statusCode(401);
+    }
+
     private Cookie getMemberAccessTokenCookie() {
         return given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
