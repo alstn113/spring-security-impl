@@ -9,6 +9,7 @@ import com.alstn113.security.security.authorization.AuthorizationDecision;
 import com.alstn113.security.security.authorization.AuthorizationFilter;
 import com.alstn113.security.security.authorization.AuthorizationManager;
 import com.alstn113.security.security.authorization.RequestMatcherDelegatingAuthorizationManager;
+import com.alstn113.security.security.context.SecurityContextHolderFilter;
 import com.alstn113.security.security.exception.AccessDeniedHandler;
 import com.alstn113.security.security.exception.AuthenticationEntryPoint;
 import com.alstn113.security.security.exception.ExceptionTranslationFilter;
@@ -27,6 +28,16 @@ public class SecurityConfig {
     private final AuthService authService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
+
+    @Bean
+    public FilterRegistrationBean<SecurityContextHolderFilter> securityContextHolderFilter() {
+        SecurityContextHolderFilter securityContextHolderFilter = new SecurityContextHolderFilter();
+        FilterRegistrationBean<SecurityContextHolderFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(securityContextHolderFilter);
+        registrationBean.addUrlPatterns("/api/*");
+        registrationBean.setOrder(0);
+        return registrationBean;
+    }
 
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtAuthenticationFilter() {
@@ -66,7 +77,8 @@ public class SecurityConfig {
                 (authentication, request) -> new AuthorizationDecision(authentication.get() != null);
 
         RequestMatcherDelegatingAuthorizationManager authorizationManager = new RequestMatcherDelegatingAuthorizationManager()
-                .add(new RequestMatcher(null, "/api/private/admin/**"), AuthorityAuthorizationManager.hasAuthority("ADMIN"))
+                .add(new RequestMatcher(null, "/api/private/admin/**"),
+                        AuthorityAuthorizationManager.hasAuthority("ADMIN"))
                 .add(new RequestMatcher(null, "/api/**"), authenticated);
         AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
 
