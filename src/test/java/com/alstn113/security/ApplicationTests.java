@@ -71,6 +71,31 @@ class ApplicationTests {
                 .statusCode(401);
     }
 
+    @Test
+    @DisplayName("'/api/private/admin' 요청은 ADMIN 권한이 있는 사용자만 접근 가능하다.")
+    void testPrivateAdmin() {
+        Cookie cookie = getAdminAccessTokenCookie();
+
+        given().log().all()
+                .cookie(cookie)
+                .get("/api/private/admin")
+                .then().log().all()
+                .statusCode(200)
+                .body(equalTo("인증된 관리자: 게시물 조회 #2"));
+    }
+
+    @Test
+    @DisplayName("'/api/private/admin' 요청은 ADMIN 권한이 없는 사용자는 403을 반환한다.")
+    void testPrivateAdminWithoutAuthorization() {
+        Cookie cookie = getMemberAccessTokenCookie();
+
+        given().log().all()
+                .cookie(cookie)
+                .get("/api/private/admin")
+                .then().log().all()
+                .statusCode(403);
+    }
+
     private Cookie getMemberAccessTokenCookie() {
         return given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

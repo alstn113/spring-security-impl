@@ -19,4 +19,11 @@ public class TestController {
 
         return "인증된 사용자: 게시물 조회 #" + authentication.principal();
     }
+
+    @GetMapping("/api/private/admin")
+    public String privateAdmin() {
+        JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+
+        return "인증된 관리자: 게시물 조회 #" + authentication.principal();
+    }
 }
