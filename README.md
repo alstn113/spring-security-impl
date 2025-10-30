@@ -1,4 +1,4 @@
-# Spring Security, 직접 만들면서 이해해보자!
+# Spring Security, 직접 구현하면서 이해해보자!
 
 이 프로젝트는 단순한 필터 하나에서 출발하여, 인증(Authentication), 인가(Authorization), 예외 처리, FilterChainProxy, 그리고 Lambda DSL 방식까지 **점진적으로
 기능을 확장해가며** Spring Security의 구조를 직접 구현해보는 실습형 학습 프로젝트입니다. 함께 보면 좋은 블로그 시리즈를 보면서 각 단계의 구현을 따라가면, Spring Security의 아키텍처 및 필터에 대한 이해를 높일 수 있습니다.
@@ -24,9 +24,9 @@
 
 | 제목                                                                   |
 |----------------------------------------------------------------------|
-| [Spring Security, 직접 만들면서 이해해보자! - 1편: 아키텍처 이해]                      |
-| [Spring Security, 직접 만들면서 이해해보자! - 2편: 인증, 인가, 예외 처리]                |
-| [Spring Security, 직접 만들면서 이해해보자! - 3편: FilterChainProxy와 Lambda DSL] |
+| [Spring Security, 직접 구현하면서 이해해보자! - 1편: 아키텍처 이해]                      |
+| [Spring Security, 직접 구현하면서 이해해보자! - 2편: 인증, 인가, 예외 처리]                |
+| [Spring Security, 직접 구현하면서 이해해보자! - 3편: FilterChainProxy와 Lambda DSL] |
 
 <!-- 브랜치 링크 모음 -->
 
@@ -52,8 +52,8 @@
 
 <!-- 블로그 링크 모음 -->
 
-[Spring Security, 직접 만들면서 이해해보자! - 1편: 아키텍처 이해]: https://alstn113.tistory.com/49
+[Spring Security, 직접 구현하면서 이해해보자! - 1편: 아키텍처 이해]: https://alstn113.tistory.com/49
 
-[Spring Security, 직접 만들면서 이해해보자! - 2편: 인증, 인가, 예외 처리]: https://alstn113.tistory.com/50
+[Spring Security, 직접 구현하면서 이해해보자! - 2편: 인증, 인가, 예외 처리]: https://alstn113.tistory.com/50
 
-[Spring Security, 직접 만들면서 이해해보자! - 3편: FilterChainProxy와 Lambda DSL]: https://alstn113.tistory.com/51
+[Spring Security, 직접 구현하면서 이해해보자! - 3편: FilterChainProxy와 Lambda DSL]: https://alstn113.tistory.com/51
